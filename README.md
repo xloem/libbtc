@@ -11,7 +11,13 @@ What is libbtc?
 
 Libbtc is a very portable C library for creating and manipulating bitcoin data structures and interacting with the p2p network.
 
-Current features
+Current Status and Contributing
+-------------------------------
+
+This is a community fork from the original repository for continued maintenance.  The codebase has a few bugs and missing important features, and pull requests haven't been merged.  You may log in to the passwordisusernamebackwardss community account to add yourself as a committer to this repository, to consolidate maintenance.  Please merge changes to a separate branch for testing before landing them in master.  If no changes have been merged for some time, you may merge 1 feature into master.  Please update the message below to relate to your change instead of the last one.
+
+2020-04-09 I made this repository.  The last merged change was over a year ago, on 2018-11-04.  My primary github account is xloem, my legal name is Karl Semich, and my dev email is 0xloem@gmail.com .  You don't have to put personal details here if you don't want, but storing a record could see whether that is an indicator of maintenance quality or not.
+
 ----------------
 * Generating and storing private and public keys
 * ECDSA secp256k1 signing and verification (through [libsecp256k1](https://github.com/bitcoin-core/secp256k1) included as git subtree)
