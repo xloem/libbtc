@@ -76,7 +76,9 @@ script:
           ./tests;
       fi
     - if ( [ "$RUN_MAKE_CHECK" == "yes" ] ); then
-          lldb tests --one-line run --one-line-on-crash bt
+          echo run make check;
+          type -p lldb;
+          lldb tests --one-line run --one-line-on-crash bt;
       fi
     - if ( [ "$RUN_WINE_UNIT_TESTS" == "yes" ] ); then
           wine $(pwd)/tests.exe;
