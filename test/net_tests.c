@@ -155,47 +155,53 @@ void test_net_basics_plus_download_block()
     vector_free(ips, true);
 
     /* create a invalid node */
+    printf("node new\n");
     btc_node *node_wrong = btc_node_new();
+    printf("assert wrong\n");
     u_assert_int_eq(btc_node_set_ipport(node_wrong, "0.0.0.1:1"), true);
 
     /* create a invalid node to will run directly into a timeout */
+    printf("node new\n");
     btc_node *node_timeout_direct = btc_node_new();
+    printf("assert timeout\n");
     u_assert_int_eq(btc_node_set_ipport(node_timeout_direct, "127.0.0.1:1234"), true);
 
     /* create a invalid node to will run indirectly into a timeout */
+    printf("node new\n");
     btc_node *node_timeout_indirect = btc_node_new();
+    printf("assert timeout indirect\n");
     u_assert_int_eq(btc_node_set_ipport(node_timeout_indirect, "8.8.8.8:8333"), true);
 
-    /* create a node */
+    printf("/* create a node */\n");
     btc_node *node = btc_node_new();
     u_assert_int_eq(btc_node_set_ipport(node, "138.201.55.219:8333"), true);
 
-    /* create a node group */
+    printf("/* create a node group */\n");
     btc_node_group* group = btc_node_group_new(NULL);
     group->desired_amount_connected_nodes = 1;
 
-    /* add the node to the group */
+    printf("/* add the node to the group */");
     btc_node_group_add_node(group, node_wrong);
     btc_node_group_add_node(group, node_timeout_direct);
     btc_node_group_add_node(group, node_timeout_indirect);
     btc_node_group_add_node(group, node);
 
-    /* set the timeout callback */
+    printf("/* set the timeout callback */");
     group->periodic_timer_cb = timer_cb;
 
-    /* set a individual log print function */
+    printf("/* set a individual log print function */");
     group->log_write_cb = net_write_log_printf;
     group->parse_cmd_cb = parse_cmd;
     group->postcmd_cb = postcmd;
     group->node_connection_state_changed_cb = node_connection_state_changed;
     group->handshake_done_cb = handshake_done;
     
-    /* connect to the next node */
+    printf("/* connect to the next node */");
     btc_node_group_connect_next_nodes(group);
 
-    /* start the event loop */
+    printf("/* start the event loop */");
     btc_node_group_event_loop(group);
 
-    /* cleanup */
+    printf("/* cleanup */");
     btc_node_group_free(group); //will also free the nodes structures from the heap
 }
