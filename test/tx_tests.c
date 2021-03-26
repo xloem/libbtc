@@ -1202,7 +1202,7 @@ void test_invalid_tx_deser()
     utils_hex_to_bin(failed_output, tx_data_fo, strlen(failed_output), &outlen);
 
     btc_tx* tx_o = btc_tx_new();
-    u_assert_int_eq(btc_tx_deserialize(tx_data_fo, outlen, tx_o, NULL, true), false);
+    u_assert_int_eq(btc_tx_deserialize(tx_data_txstr, outlen, tx_o, NULL, true), false);
     btc_tx_free(tx_o);
 
 }
