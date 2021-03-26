@@ -18,7 +18,7 @@ addons:
         - libevent-dev
 
 before_install:
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install valgrind gnu-sed --default-names; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install valgrind; fi
 
 matrix:
     fast_finish:
