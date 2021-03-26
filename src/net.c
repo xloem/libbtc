@@ -468,12 +468,15 @@ int btc_node_parse_message(btc_node* node, btc_p2p_msg_hdr* hdr, struct const_bu
 {
     node->nodegroup->log_write_cb("received command from node %d: %s\n", node->nodeid, hdr->command);
     if (memcmp(hdr->netmagic, node->nodegroup->chainparams->netmagic, sizeof(node->nodegroup->chainparams->netmagic)) != 0) {
+        node->nodegroup->log_write_cb("misbehavior\n", node->nodeid, hdr->command);
         return btc_node_missbehave(node);
     }
+    node->nodegroup->log_write_cb("not misbheavior\n", node->nodeid, hdr->command);
 
     /* send the header and buffer to the possible callback */
     /* callback can decide to run the internal base message logic */
     if (!node->nodegroup->parse_cmd_cb || node->nodegroup->parse_cmd_cb(node, hdr, buf)) {
+        node->nodegroup->log_write_cb("callback says run net logic\n", node->nodeid, hdr->command);
         if (strcmp(hdr->command, BTC_MSG_VERSION) == 0) {
             btc_p2p_version_msg v_msg_check;
             if (!btc_p2p_msg_version_deser(&v_msg_check, buf)) {
@@ -505,11 +508,17 @@ int btc_node_parse_message(btc_node* node, btc_p2p_msg_hdr* hdr, struct const_bu
             btc_node_send(node, pongmsg);
             cstr_free(pongmsg, true);
         }
+    } else {
+        node->nodegroup->log_write_cb("callback said not run net logic\n", node->nodeid, hdr->command);
     }
 
     /* pass data to the "post command" callback */
-    if (node->nodegroup->postcmd_cb)
+    if (node->nodegroup->postcmd_cb) {
+        node->nodegroup->log_write_cb("passing to post command\n", node->nodeid, hdr->command);
         node->nodegroup->postcmd_cb(node, hdr, buf);
+    } else {
+        node->nodegroup->log_write_cb("no post command cb\n", node->nodeid, hdr->command);
+    }
 
     return true;
 }
