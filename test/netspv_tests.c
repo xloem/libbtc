@@ -22,13 +22,15 @@ btc_bool test_spv_header_message_processed(struct btc_spv_client_ *client, btc_n
 void test_netspv()
 {
     unlink("headers.db");
+    printf("Creating client\n");
     btc_spv_client* client = btc_spv_client_new(&btc_chainparams_main, true, false);
     client->header_message_processed = test_spv_header_message_processed;
     client->sync_completed = test_spv_sync_completed;
 
+    printf("Creating headers.db\n");
     btc_spv_client_load(client, "headers.db");
 
-    printf("Discover peers...");
+    printf("Discover peers...\n");
     btc_spv_client_discover_peers(client, NULL);
     printf("done\n");
     printf("Start interacting with the p2p network...\n");
