@@ -25,9 +25,11 @@ matrix:
         - true
     include:
       - os: osx
+        osx_image: xcode11.3
         compiler: clang
         env: RUN_MAKE_CHECK="yes" $BUILD_CONFIG='--enable-debug'
       - os: osx
+        osx_image: xcode11.3
         compiler: gcc
         env: RUN_TOOLTESTS="yes" $BUILD_CONFIG=""
       - os: linux
