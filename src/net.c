@@ -516,6 +516,7 @@ int btc_node_parse_message(btc_node* node, btc_p2p_msg_hdr* hdr, struct const_bu
     if (node->nodegroup->postcmd_cb) {
         node->nodegroup->log_write_cb("passing to post command\n", node->nodeid, hdr->command);
         node->nodegroup->postcmd_cb(node, hdr, buf);
+        node->nodegroup->log_write_cb("post command returned\n", node->nodeid, hdr->command);
     } else {
         node->nodegroup->log_write_cb("no post command cb\n", node->nodeid, hdr->command);
     }
