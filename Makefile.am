@@ -58,12 +58,14 @@ libbtc_la_SOURCES = \
     src/random.c \
     src/ripemd160.c \
     src/script.c \
-    src/segwit_addr.c \
     src/serialize.c \
-    src/sha2.c \
     src/tx.c \
     src/utils.c \
-    src/vector.c
+    src/vector.c \
+    src/trezor-crypto/hmac.c \
+    src/trezor-crypto/memzero.c \
+    src/trezor-crypto/segwit_addr.c \
+    src/trezor-crypto/sha2.c
 
 libbtc_la_CFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/src/logdb/include
 libbtc_la_LIBADD = $(LIBSECP256K1)
