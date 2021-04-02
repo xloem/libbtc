@@ -46,6 +46,7 @@ enum {
     SIGHASH_ALL = 1,
     SIGHASH_NONE = 2,
     SIGHASH_SINGLE = 3,
+    SIGHASH_FORKID = 0x40, /* (OR this in for bitcoin-sv) */
     SIGHASH_ANYONECANPAY = 0x80,
 };
 

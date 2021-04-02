@@ -236,14 +236,14 @@ btc_bool btc_pubkey_getaddr_p2sh_p2wpkh(const btc_pubkey* pubkey, const btc_chai
     cstring *p2wphk_script = cstr_new_sz(22);
     uint160 keyhash;
     btc_pubkey_get_hash160(pubkey, keyhash);
-    btc_script_build_p2wpkh(p2wphk_script, keyhash);
+    btc_script_build_p2wpkh(p2wphk_script, keyhash); // script built from hash of actual public key
 
     uint8_t hash160[sizeof(uint160)+1];
-    hash160[0] = chain->b58prefix_script_address;
-    btc_script_get_scripthash(p2wphk_script, hash160+1);
+    hash160[0] = chain->b58prefix_script_address; // script address prefix
+    btc_script_get_scripthash(p2wphk_script, hash160+1); // hash of p2wphk_script
     cstr_free(p2wphk_script, true);
 
-    btc_base58_encode_check(hash160, sizeof(hash160), addrout, 100);
+    btc_base58_encode_check(hash160, sizeof(hash160), addrout, 100); // base58 encoded
     return true;
 }
 

@@ -55,6 +55,7 @@ static struct option long_options[] =
         {"version", no_argument, NULL, 'v'},
         {"txhex", no_argument, NULL, 'x'},
         {"scripthex", no_argument, NULL, 's'},
+        {"scripttype", required_argument, NULL, 'y'},
         {"inputindex", no_argument, NULL, 'i'},
         {"sighashtype", no_argument, NULL, 'h'},
         {"amount", no_argument, NULL, 'a'},
@@ -68,8 +69,30 @@ static void print_version()
 static void print_usage()
 {
     print_version();
-    printf("Usage: bitcointool (-m|-keypath <bip_keypath>) (-k|-pubkey <publickey>) (-p|-privkey <privatekey>) (-t[--testnet]) (-r[--regtest]) -c <command>\n");
-    printf("Available commands: pubfrompriv (requires -p WIF), addrfrompub (requires -k HEX), genkey, hdgenmaster, hdprintkey (requires -p), hdderive (requires -m and -p) \n");
+    printf("Usage: bitcointool <OPTION>... -c <COMMAND>\n")
+    printf("\nAvailable options: \n");
+    printf("  -m, -keypath <bip_keypath>\n");
+    printf("  -k, -pubkey <publickey>\n");
+    printf("  -p, -privkey <privatekey>\n");
+    printf("  -t, -testnet\n");
+    printf("  -r, -regtest\n");
+    printf("  -v, -version\n");
+    printf("  -x, -txhex <hex>\n");
+    printf("  -s, -scripthex <hex>\n");
+    printf("  -y, -scripttype <type>   one of: p2pkh, p2wpkh, p2sh. open a bug report for more\n");
+    printf("  -i, -inputindex <int>\n");
+    printf("  -h, -sighashtype <int>\n");
+    printf("  -a, -amount <int>\n");
+    printf("  -c, -command <command>\n");
+    printf("\nAvailable commands: \n");
+    printf("  pubfrompriv (requires -p WIF)\n");
+    printf("  addrfrompub (requires -k HEX)\n");
+    printf("  genkey\n");
+    printf("  hdgenmaster\n");
+    printf("  hdprintkey (requires -p)\n");
+    printf("  hdderive (requires -m and -p)\n");
+    printf("  scriptpubkey (requires -y and -k)\n");
+    printf("  sign (requires -x, -p, and -s)\n");
     printf("\nExamples: \n");
     printf("Generate a testnet privatekey in WIF/HEX format:\n");
     printf("> bitcointool -c genkey --testnet\n\n");
@@ -307,6 +330,9 @@ int main(int argc, char* argv[])
             else
                 hd_print_node(chain, newextkey);
         }
+    } else if (strcmp(cmd, "scriptpubkey") == 0) {
+        if (!pubkey)
+            return showError("Missing public key (use -k)");
     } else if (strcmp(cmd, "sign") == 0) {
         if(!txhex || !scripthex) {
             return showError("Missing tx-hex or script-hex (use -x, -s)\n");
@@ -357,7 +383,7 @@ int main(int argc, char* argv[])
         btc_bool sign = false;
         btc_key key;
         btc_privkey_init(&key);
-        if (btc_privkey_decode_wif(pkey, chain, &key)) {
+        if (pkey && btc_privkey_decode_wif(pkey, chain, &key)) {
             sign = true;
         }
         else {

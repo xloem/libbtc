@@ -90,6 +90,19 @@ btc_bool gen_privatekey(const btc_chainparams* chain, char* privkey_wif, size_t 
     return true;
 }
 
+/*
+btc_bool scriptpubkey_from_address(const btc_chainparams* chain, const char* addr, char* scriptpubkey_hex, size_t* sizeout)
+{
+    uint8_t hash160[sizeof(uint160)+1];
+    btc_base58_decode_check(addr, hash160, sizeof(hash160));
+    if (hash160[0] == chain->b58prefix_pubkey_address) {
+        // p2pkh
+    } else if (hash160[0] == chain->bech32_hrp) {
+        // p2wpkh
+    }
+}
+*/
+
 btc_bool hd_gen_master(const btc_chainparams* chain, char* masterkeyhex, size_t strsize)
 {
     btc_hdnode node;
