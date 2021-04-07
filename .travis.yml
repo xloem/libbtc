@@ -14,7 +14,7 @@ addons:
         - binutils-mingw-w64
         - g++-mingw-w64-x86-64
         - gcc-mingw-w64
-        - wine1.6
+        - wine
         - libevent-dev
 
 #before_install:
@@ -37,6 +37,7 @@ matrix:
         compiler: gcc
         env: $BUILD_CONFIG='--disable-wallet'
       - os: linux
+        dist: focal
         compiler: x86_64-w64-mingw32
         env: HOST="x86_64-w64-mingw32" CROSS_COMPILE="yes" RUN_WINE_UNIT_TESTS="yes" $BUILD_CONFIG="--disable-shared --enable-static --disable-net"
       - os: linux
