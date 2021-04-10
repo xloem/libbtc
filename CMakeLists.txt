@@ -1,63 +1,115 @@
 CMAKE_MINIMUM_REQUIRED( VERSION 3.3 )
 
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_C_STANDARD_REQUIRED YES)
+SET(CMAKE_C_STANDARD 99)
+SET(CMAKE_C_STANDARD_REQUIRED TRUE)
 
-SET(BTC_LIB_NAME btc)
-PROJECT(${BTC_LIB_NAME})
+SET(LIBBTC_NAME btc)
+PROJECT(${LIBBTC_NAME})
 
-set(WITH_LOGDB <value>... CACHE <type> <docstring> [
-set(WITH_LOGDB <value>... CACHE <type> <docstring> [
+SET(WITH_WALLET TRUE CACHE BOOL "enable wallet/database functions")
+SET(WITH_TOOLS TRUE CACHE BOOL "enable bitcoin tool cli application")
+SET(WITH_NET TRUE CACHE BOOL "enable net functions")
+SET(RANDOM_DEVICE "/dev/urandom" CACHE STRING "set the device to read random data from")
 
-add_definitions(-DUSE_NUM_GMP)
-add_definitions(-DUSE_FIELD_10X26)
-add_definitions(-DUSE_FIELD_INV_BUILTIN)
-add_definitions(-DUSE_SCALAR_8X32)
-add_definitions(-DUSE_SCALAR_INV_BUILTIN)
-add_definitions(-DRANDOM_DEVICE="/dev/urandom")
-add_definitions(-DENABLE_MODULE_RECOVERY)
-add_definitions(-DECMULT_WINDOW_SIZE=15)
-add_definitions(-DECMULT_GEN_PREC_BITS=4)
+ADD_DEFINITIONS(-DUSE_NUM_GMP)
+ADD_DEFINITIONS(-DUSE_FIELD_10X26)
+ADD_DEFINITIONS(-DUSE_FIELD_INV_BUILTIN)
+ADD_DEFINITIONS(-DUSE_SCALAR_8X32)
+ADD_DEFINITIONS(-DUSE_SCALAR_INV_BUILTIN)
+ADD_DEFINITIONS(-DRANDOM_DEVICE="${RANDOM_DEVICE}")
+ADD_DEFINITIONS(-DENABLE_MODULE_RECOVERY)
+ADD_DEFINITIONS(-DECMULT_WINDOW_SIZE=15)
+ADD_DEFINITIONS(-DECMULT_GEN_PREC_BITS=4)
 
 FILE(GLOB SOURCES src/*.c)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/net.c)
+IF(NOT WITH_WALLET)
+    LIST(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/wallet.c)
+ENDIF()
+IF(NOT WITH_NET)
+    LIST(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/headersdb_file.c)
+    LIST(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/net.c)
+    LIST(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/netspv.c)
+    LIST(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/protocol.c)
+ENDIF()
+FILE(TOUCH src/libbtc-config.h)
 
 FILE(GLOB HEADERS include/btc/*.h)
-list(REMOVE_ITEM HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/btc/net.h)
+LIST(REMOVE_ITEM HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/btc/net.h)
 
-FILE(GLOB LOGDB src/logdb/*.c)
+IF(WITH_LOGDB)
+    FILE(GLOB LOGDB src/logdb/*.c)
+    FILE(GLOB LOGDB_TESTS src/logdb/test/*.c)
+ENDIF()
 
-SET(TREZOR_CRYPTO
-    src/trezor-crypto/base58.c
-    src/trezor-crypto/blake2b.c
-    src/trezor-crypto/blake256.c
-    src/trezor-crypto/groestl.c
-    src/trezor-crypto/hasher.c
-    src/trezor-crypto/hmac.c
-    src/trezor-crypto/memzero.c
-    src/trezor-crypto/ripemd160.c
-    src/trezor-crypto/segwit_addr.c
-    src/trezor-crypto/sha2.c
-    src/trezor-crypto/sha3.c
-)
+FILE(GLOB TREZOR_CRYPTO src/trezor-crypto/*.c)
+LIST(REMOVE_ITEM TREZOR_CRYPTO ${CMAKE_CURRENT_SOURCE_DIR}/src/trezor-crypto/bip32.c)
+LIST(REMOVE_ITEM TREZOR_CRYPTO ${CMAKE_CURRENT_SOURCE_DIR}/src/trezor-crypto/ecdsa.c)
+LIST(REMOVE_ITEM TREZOR_CRYPTO ${CMAKE_CURRENT_SOURCE_DIR}/src/trezor-crypto/hmac_drbg.c)
+LIST(REMOVE_ITEM TREZOR_CRYPTO ${CMAKE_CURRENT_SOURCE_DIR}/src/trezor-crypto/nem.c)
+LIST(REMOVE_ITEM TREZOR_CRYPTO ${CMAKE_CURRENT_SOURCE_DIR}/src/trezor-crypto/nist256p1.c)
+LIST(REMOVE_ITEM TREZOR_CRYPTO ${CMAKE_CURRENT_SOURCE_DIR}/src/trezor-crypto/rand.c)
+LIST(REMOVE_ITEM TREZOR_CRYPTO ${CMAKE_CURRENT_SOURCE_DIR}/src/trezor-crypto/rfc6979.c)
+LIST(REMOVE_ITEM TREZOR_CRYPTO ${CMAKE_CURRENT_SOURCE_DIR}/src/trezor-crypto/schnorr.c)
+LIST(REMOVE_ITEM TREZOR_CRYPTO ${CMAKE_CURRENT_SOURCE_DIR}/src/trezor-crypto/secp256k1.c)
+#SET(TREZOR_CRYPTO
+#    src/trezor-crypto/base58.c
+#    src/trezor-crypto/blake2b.c
+#    src/trezor-crypto/blake256.c
+#    src/trezor-crypto/groestl.c
+#    src/trezor-crypto/hasher.c
+#    src/trezor-crypto/hmac.c
+#    src/trezor-crypto/memzero.c
+#    src/trezor-crypto/ripemd160.c
+#    src/trezor-crypto/segwit_addr.c
+#    src/trezor-crypto/sha2.c
+#    src/trezor-crypto/sha3.c
+#)
 
 FILE(GLOB SECP256K1 src/secp256k1/src/*.c)
-list(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/tests.c)
-list(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_ecdh.c)
-list(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_ecmult.c)
-list(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_recover.c)
-list(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_sign.c)
-list(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_verify.c)
-list(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_ecdh.c)
-list(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_internal.c)
-list(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_schnorr_verify.c)
+LIST(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/tests.c)
+LIST(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_ecdh.c)
+LIST(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_ecmult.c)
+LIST(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_recover.c)
+LIST(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_sign.c)
+LIST(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_verify.c)
+LIST(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_ecdh.c)
+LIST(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_internal.c)
+LIST(REMOVE_ITEM SECP256K1 ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/src/bench_schnorr_verify.c)
 
 INCLUDE_DIRECTORIES(include)
 INCLUDE_DIRECTORIES(src/logdb/include)
 INCLUDE_DIRECTORIES(src/secp256k1)
 INCLUDE_DIRECTORIES(${GMP_INSTALL_DIR}/include)
 
-ADD_LIBRARY(${BTC_LIB_NAME} ${SOURCES} ${LOGDB} ${TREZOR_CRYPTO} ${SECP256K1} ${HEADERS})
-TARGET_LINK_LIBRARIES(${BTC_LIB_NAME})
+ADD_LIBRARY(${LIBBTC_NAME} ${SOURCES} ${LOGDB} ${TREZOR_CRYPTO} ${SECP256K1} ${HEADERS})
+TARGET_LINK_LIBRARIES(${LIBBTC_NAME})
 
-ADD_EXECUTABLE(
+IF(WITH_TOOLS)
+    ADD_EXECUTABLE(bitcointool src/tools/bitcointool.c)
+    TARGET_LINK_LIBRARIES(bitcointool ${LIBBTC_NAME})
+ENDIF()
+IF(WITH_TOOLS AND WITH_NET)
+    ADD_EXECUTABLE(bitcoin-send-tx src/tools/bitcoin-send-tx.c)
+    TARGET_LINK_LIBRARIES(bitcoin-send-tx ${LIBBTC_NAME})
+    ADD_EXECUTABLE(bitcoin-spv src/tools/bitcoin-spv.c)
+    TARGET_LINK_LIBRARIES(bitcoin-spv ${LIBBTC_NAME})
+ENDIF()
+
+INCLUDE(CTest)
+IF(CMAKE_TESTING_ENABLED)
+    FILE(GLOB LIBBTC_TESTS test/*.c)
+    IF(NOT WITH_WALLET)
+        LIST(REMOVE_ITEM LIBBTC_TESTS ${CMAKE_CURRENT_SOURCE_DIR}/test/wallet_tests.c)
+    ENDIF()
+    IF(NOT WITH_NET)
+        LIST(REMOVE_ITEM LIBBTC_TESTS ${CMAKE_CURRENT_SOURCE_DIR}/test/net_tests.c)
+        LIST(REMOVE_ITEM LIBBTC_TESTS ${CMAKE_CURRENT_SOURCE_DIR}/test/netspv_tests.c)
+        LIST(REMOVE_ITEM LIBBTC_TESTS ${CMAKE_CURRENT_SOURCE_DIR}/test/protocol_tests.c)
+    ENDIF()
+    IF(NOT WITH_TOOLS)
+        LIST(REMOVE_ITEM LIBBTC_TESTS ${CMAKE_CURRENT_SOURCE_DIR}/test/tool_tests.c)
+    ENDIF()
+    ADD_EXECUTABLE(tests ${LIBBTC_TESTS} ${LOGDB_TESTS})
+    TARGET_LINK_LIBRARIES(tests ${LIBBTC_NAME})
+    ADD_TEST(NAME ${LIBBTC_NAME}_tests COMMAND tests)
+ENDIF()
